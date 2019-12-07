@@ -5,21 +5,32 @@ import 'package:digital_clock/fibonacci_blocks.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
 
-enum _BlockColors {
-  noColor,
-  hourColor,
-  minuteColor,
-  combinedColor,
+class Theme {
+  final Color noColor;
+  final Color hourColor;
+  final Color minuteColor;
+  final Color combinedColor;
+  const Theme(
+      {this.noColor, this.hourColor, this.minuteColor, this.combinedColor});
+  // final List<Color> themeColors = [noColor,hourColor,minuteColor,combinedColor];
+
 }
 
-final _basictheme = {
-  _BlockColors.noColor: Colors.white,
-  _BlockColors.hourColor: Colors.red[400],
-  _BlockColors.minuteColor: Colors.green[400],
-  _BlockColors.combinedColor: Colors.blue[400],
+Map<String, Color> _basicTheme = {
+  'noColor': Colors.white,
+  'hourColor': Colors.redAccent,
+  'minuteColor': Colors.greenAccent,
+  'combinedColor': Colors.blueAccent
+};
+
+Map<String, Color> _classicRetroTheme = {
+  'noColor': Colors.white,
+  'hourColor': Color(0xA7414A),
+  'minuteColor': Color(0x6A8A82),
+  'combinedColor': Color(0xA37C27)
 };
 Map<String, Color> circleColors = {
-  'nocolor': Colors.transparent,
+  'noColor': Colors.transparent,
   'black': Colors.black,
   'white': Colors.white
 };
@@ -83,11 +94,25 @@ class _FibonacciClockState extends State<FibonacciClock> {
 
   @override
   Widget build(BuildContext context) {
+    final Map<String, Color> _theme = _basicTheme;
+    // okay if the phone is in landscape mode, we should use the height for the maximum value
+
     // added a scaling factor of 1.008 else it would not be fully on the screen :(
-    final width = MediaQuery.of(context).size.width / 1.008;
-    final double minWidth = width / 8;
-    // aspect ratio of 5/3
-    final double minHeight = width * (3.0 / 5) / 5.0;
+    double minWidth;
+    double minHeight;
+    if (MediaQuery.of(context).orientation == Orientation.landscape) {
+      final double height = MediaQuery.of(context).size.height / 1.06;
+      final double width = 5.0 / 3.0 * height;
+      print(height);
+      print(width);
+      minHeight = height / 5.0;
+      minWidth = width / 8.0;
+    } else {
+      final double width = MediaQuery.of(context).size.width / 1.01;
+      final double height = 3.0 / 5.0 * width;
+      minWidth = width / 8.0;
+      minHeight = height / 5.0;
+    }
     const List<int> fibList = [1, 1, 2, 3, 5];
     // determine positions of the blocks
     final List<Offset> positions = [
@@ -106,10 +131,10 @@ class _FibonacciClockState extends State<FibonacciClock> {
           positions[i].dy - minHeight * fibList[i] / 2);
       minutePositions[i] = leftCorner + Offset(10, 10);
     }
-    final List<Color> color = timeToColor(_dateTime);
+    final List<Color> color = timeToColor(_dateTime, _theme);
     // enable minutecircles
     const bool drawMinuteCircle = true;
-    final List<Color> minuteColor = minuteToColor(_dateTime, color);
+    final List<Color> minuteColor = minuteToColor(_dateTime, color, _theme);
 
     return Container(
       child: Center(
@@ -127,7 +152,7 @@ class _FibonacciClockState extends State<FibonacciClock> {
 
             if (drawMinuteCircle)
               for (var i = 0; i < fibList.length; i++)
-                if (minuteColor[i] != circleColors['nocolor'])
+                if (minuteColor[i] != circleColors['noColor'])
                   MinuteCircle(
                       color: minuteColor[i], position: minutePositions[i]),
 
@@ -145,13 +170,12 @@ class _FibonacciClockState extends State<FibonacciClock> {
     );
   }
 
-  List<Color> minuteToColor(DateTime time, List<Color> blockColors) {
-    List<bool> black = blockColors
-        .map((value) => _basictheme[_BlockColors.noColor] == value)
-        .toList();
+  List<Color> minuteToColor(DateTime time, List<Color> blockColors, _theme) {
+    List<bool> black =
+        blockColors.map((value) => _theme['noColor'] == value).toList();
     // the 5 block is never needed as then the block colours will update.
     // transparent just to check if it should render, black dots if white block and white dots if coloured blocks
-    List<Color> colors = new List.filled(5, circleColors['nocolor']);
+    List<Color> colors = new List.filled(5, circleColors['noColor']);
     final int minutes = time.minute % 5;
     List<List<int>> possibleCombinations = [];
     subsetSum(fibList, minutes, possibleCombinations, []);
@@ -168,7 +192,7 @@ class _FibonacciClockState extends State<FibonacciClock> {
     return colors;
   }
 
-  List<Color> timeToColor(DateTime time) {
+  List<Color> timeToColor(DateTime time, Map<String, Color> _theme) {
     List<Color> colors = new List(5);
 
     final int hourTarget = ((time.hour - 1) % 12) + 1;
@@ -201,9 +225,7 @@ class _FibonacciClockState extends State<FibonacciClock> {
         minuteColor.remove(fibList[i]);
       }
     }
-    colors = colorList
-        .map((value) => _basictheme[_BlockColors.values[value]])
-        .toList();
+    colors = colorList.map((value) => _theme[value]).toList();
     return colors;
   }
 
