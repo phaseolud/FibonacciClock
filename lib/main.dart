@@ -4,7 +4,7 @@
 
 import 'dart:io';
 
-import 'package:digital_clock/fibonacci_clock.dart';
+import 'package:fibonacci_clock/fibonacci_clock.dart';
 import 'package:flutter_clock_helper/customizer.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/foundation.dart';

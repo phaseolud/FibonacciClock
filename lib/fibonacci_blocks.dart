@@ -109,6 +109,7 @@ class _MinuteCirclePainter extends CustomPainter {
     paint.color = color;
     paint.style = PaintingStyle.fill;
 
+    // canvas.drawImage(image, position, paint);
     canvas.drawCircle(position, radius, paint);
   }
 

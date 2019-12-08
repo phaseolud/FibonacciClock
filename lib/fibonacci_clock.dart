@@ -1,9 +1,10 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:digital_clock/fibonacci_blocks.dart';
+import 'package:fibonacci_clock/fibonacci_blocks.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
+import 'package:fibonacci_clock/fibonacci_themes.dart';
 
 enum _BlockColors {
   noColor,
@@ -12,14 +13,29 @@ enum _BlockColors {
   combinedColor,
 }
 
-final _basictheme = {
+final Map<_BlockColors, Color> _basicAccentTheme = {
+  _BlockColors.noColor: Colors.white,
+  _BlockColors.hourColor: Colors.redAccent,
+  _BlockColors.minuteColor: Colors.greenAccent,
+  _BlockColors.combinedColor: Colors.blueAccent,
+};
+
+final Map<_BlockColors, Color> _warmTheme = {
+  _BlockColors.noColor: Colors.white,
+  _BlockColors.hourColor: Colors.red,
+  _BlockColors.minuteColor: Colors.yellow,
+  _BlockColors.combinedColor: Colors.orange,
+};
+
+final Map<_BlockColors, Color> _basicTheme = {
   _BlockColors.noColor: Colors.white,
   _BlockColors.hourColor: Colors.red[400],
   _BlockColors.minuteColor: Colors.green[400],
   _BlockColors.combinedColor: Colors.blue[400],
 };
+
 Map<String, Color> circleColors = {
-  'nocolor': Colors.transparent,
+  'noColor': Colors.transparent,
   'black': Colors.black,
   'white': Colors.white
 };
@@ -70,7 +86,6 @@ class _FibonacciClockState extends State<FibonacciClock> {
   void _updateTime() {
     setState(() {
       _dateTime = DateTime.now();
-      print('updated1');
 // update every minute
       _timer = Timer(
         Duration(minutes: 1) -
@@ -83,75 +98,79 @@ class _FibonacciClockState extends State<FibonacciClock> {
 
   @override
   Widget build(BuildContext context) {
-    // added a scaling factor of 1.008 else it would not be fully on the screen :(
-    final width = MediaQuery.of(context).size.width / 1.008;
-    final double minWidth = width / 8;
-    // aspect ratio of 5/3
-    final double minHeight = width * (3.0 / 5) / 5.0;
-    const List<int> fibList = [1, 1, 2, 3, 5];
-    // determine positions of the blocks
-    final List<Offset> positions = [
-      Offset(2.5 * minWidth, 0.5 * minHeight),
-      Offset(2.5 * minWidth, 1.5 * minHeight),
-      Offset(minWidth, minHeight),
-      Offset(1.5 * minWidth, 3.5 * minHeight),
-      Offset(5.5 * minWidth, 2.5 * minHeight)
-    ];
+    return LayoutBuilder(
+      builder: (context, BoxConstraints constraints) {
+        Map<_BlockColors, Color> _theme = _basicAccentTheme;
 
-    // place minute indicator in topleft corner
-    final List<Offset> minutePositions = new List(5);
-    for (var i = 0; i < positions.length; i++) {
-      // determine left corner
-      Offset leftCorner = Offset(positions[i].dx - minWidth * fibList[i] / 2,
-          positions[i].dy - minHeight * fibList[i] / 2);
-      minutePositions[i] = leftCorner + Offset(10, 10);
-    }
-    final List<Color> color = timeToColor(_dateTime);
-    // enable minutecircles
-    const bool drawMinuteCircle = true;
-    final List<Color> minuteColor = minuteToColor(_dateTime, color);
+        final double minWidth = constraints.maxWidth / 8;
+        final double minHeight = constraints.maxHeight / 5;
 
-    return Container(
-      child: Center(
-        child: Stack(
-          children: <Widget>[
-            // fibonacci blocks
-            for (var i = 0; i < fibList.length; i++)
-              FibonacciBlock(
-                color: color[i],
-                position: positions[i],
-                width: minWidth * fibList[i],
-                height: minHeight * fibList[i],
-              ),
-            // minute circles
+        // determine positions of the blocks
+        final List<Offset> positions = [
+          Offset(2.5 * minWidth, 0.5 * minHeight),
+          Offset(2.5 * minWidth, 1.5 * minHeight),
+          Offset(minWidth, minHeight),
+          Offset(1.5 * minWidth, 3.5 * minHeight),
+          Offset(5.5 * minWidth, 2.5 * minHeight)
+        ];
 
-            if (drawMinuteCircle)
-              for (var i = 0; i < fibList.length; i++)
-                if (minuteColor[i] != circleColors['nocolor'])
-                  MinuteCircle(
-                      color: minuteColor[i], position: minutePositions[i]),
+        // place minute indicator in topleft corner
+        final List<Offset> minutePositions = new List(5);
+        for (var i = 0; i < positions.length; i++) {
+          // determine left corner
+          Offset leftCorner = Offset(
+              positions[i].dx - minWidth * fibList[i] / 2,
+              positions[i].dy - minHeight * fibList[i] / 2);
+          minutePositions[i] = leftCorner + Offset(10, 10);
+        }
+        final List<Color> color = timeToColor(_dateTime, _theme);
+        // enable minutecircles
+        const bool drawMinuteCircle = true;
+        final List<Color> minuteColor = minuteToColor(_dateTime, color, _theme);
+        return Container(
+          child: Center(
+            child: Stack(
+              children: <Widget>[
+                // fibonacci blocks
+                for (var i = 0; i < fibList.length; i++)
+                  FibonacciBlock(
+                    color: color[i],
+                    position: positions[i],
+                    width: minWidth * fibList[i],
+                    height: minHeight * fibList[i],
+                  ),
+                // minute circles
 
-            // block lines
-            for (var i = 0; i < fibList.length; i++)
-              FibonacciLines(
-                position: positions[i],
-                width: minWidth * fibList[i],
-                height: minHeight * fibList[i],
-              )
-          ],
-        ),
-      ),
-      // child: FibonacciBlocks(),
+                if (drawMinuteCircle)
+                  for (var i = 0; i < fibList.length; i++)
+                    if (minuteColor[i] != circleColors['noColor'])
+                      MinuteCircle(
+                          color: minuteColor[i], position: minutePositions[i]),
+
+                // block lines
+                for (var i = 0; i < fibList.length; i++)
+                  FibonacciLines(
+                    position: positions[i],
+                    width: minWidth * fibList[i],
+                    height: minHeight * fibList[i],
+                  )
+              ],
+            ),
+          ),
+          // child: FibonacciBlocks(),
+        );
+      },
     );
   }
 
-  List<Color> minuteToColor(DateTime time, List<Color> blockColors) {
+  List<Color> minuteToColor(
+      DateTime time, List<Color> blockColors, Map<_BlockColors, Color> _theme) {
     List<bool> black = blockColors
-        .map((value) => _basictheme[_BlockColors.noColor] == value)
+        .map((value) => _theme[_BlockColors.noColor] == value)
         .toList();
     // the 5 block is never needed as then the block colours will update.
     // transparent just to check if it should render, black dots if white block and white dots if coloured blocks
-    List<Color> colors = new List.filled(5, circleColors['nocolor']);
+    List<Color> colors = new List.filled(5, circleColors['noColor']);
     final int minutes = time.minute % 5;
     List<List<int>> possibleCombinations = [];
     subsetSum(fibList, minutes, possibleCombinations, []);
@@ -168,7 +187,7 @@ class _FibonacciClockState extends State<FibonacciClock> {
     return colors;
   }
 
-  List<Color> timeToColor(DateTime time) {
+  List<Color> timeToColor(DateTime time, Map<_BlockColors, Color> _theme) {
     List<Color> colors = new List(5);
 
     final int hourTarget = ((time.hour - 1) % 12) + 1;
@@ -201,9 +220,8 @@ class _FibonacciClockState extends State<FibonacciClock> {
         minuteColor.remove(fibList[i]);
       }
     }
-    colors = colorList
-        .map((value) => _basictheme[_BlockColors.values[value]])
-        .toList();
+    colors =
+        colorList.map((value) => _theme[_BlockColors.values[value]]).toList();
     return colors;
   }
 

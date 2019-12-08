@@ -1,5 +1,5 @@
-name: digital_clock
-description: Digital clock.
+name: fibonacci_clock
+description: Fibonacci clock.
 version: 1.0.0+1
 
 environment:
@@ -9,7 +9,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_clock_helper:
-    path: /flutter_clock_helper
+    path: flutter_clock_helper
   cupertino_icons: ^0.1.2
   trotter: ^1.0.2
 
