@@ -4,7 +4,6 @@ import 'dart:math';
 import 'package:fibonacci_clock/fibonacci_blocks.dart';
 import 'package:flutter_clock_helper/model.dart';
 import 'package:flutter/material.dart';
-import 'package:fibonacci_clock/fibonacci_themes.dart';
 
 enum _BlockColors {
   noColor,
@@ -20,18 +19,26 @@ final Map<_BlockColors, Color> _basicAccentTheme = {
   _BlockColors.combinedColor: Colors.blueAccent,
 };
 
-final Map<_BlockColors, Color> _warmTheme = {
-  _BlockColors.noColor: Colors.white,
-  _BlockColors.hourColor: Colors.red,
-  _BlockColors.minuteColor: Colors.yellow,
-  _BlockColors.combinedColor: Colors.orange,
-};
-
 final Map<_BlockColors, Color> _basicTheme = {
   _BlockColors.noColor: Colors.white,
   _BlockColors.hourColor: Colors.red[400],
   _BlockColors.minuteColor: Colors.green[400],
   _BlockColors.combinedColor: Colors.blue[400],
+};
+
+// Color blind theme https://personal.sron.nl/~pault/#sec:qualitative
+final Map<_BlockColors, Color> _colorBlindTheme = {
+  _BlockColors.noColor: Colors.white,
+  _BlockColors.hourColor: Color.fromARGB(255, 238, 102, 119),
+  _BlockColors.minuteColor: Color.fromARGB(255, 34, 136, 51),
+  _BlockColors.combinedColor: Color.fromARGB(255, 68, 119, 170),
+};
+
+final Map<_BlockColors, Color> _colorBlindTheme2 = {
+  _BlockColors.noColor: Colors.white,
+  _BlockColors.hourColor: Color.fromARGB(255, 238, 119, 51),
+  _BlockColors.minuteColor: Color.fromARGB(255, 0, 153, 136),
+  _BlockColors.combinedColor: Color.fromARGB(255, 0, 119, 187),
 };
 
 Map<String, Color> circleColors = {
@@ -100,7 +107,7 @@ class _FibonacciClockState extends State<FibonacciClock> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, BoxConstraints constraints) {
-        Map<_BlockColors, Color> _theme = _basicAccentTheme;
+        Map<_BlockColors, Color> _theme = _colorBlindTheme2;
 
         final double minWidth = constraints.maxWidth / 8;
         final double minHeight = constraints.maxHeight / 5;
@@ -203,12 +210,13 @@ class _FibonacciClockState extends State<FibonacciClock> {
 
     // okay the idea is here to make the clock not always show the same, but at some randomness
     // however some will count double as the 1 is double in the fibonacci list.
+    // mind that the clock will display a single 1 block always as the first one.
     List<int> hourColor = possibleCombinationsHours[
         rnd.nextInt(possibleCombinationsHours.length)];
     List<int> minuteColor = possibleCombinationsMinutes[
         rnd.nextInt(possibleCombinationsMinutes.length)];
     List<int> colorList = new List.filled(5, 0);
-    // map the minutes to two, and the hours to 1
+    // map the minutes to 2, and the hours to 1
     for (var i = 0; i < fibList.length; i++) {
       if (hourColor.contains(fibList[i])) {
         colorList[i] += 1;
@@ -225,7 +233,7 @@ class _FibonacciClockState extends State<FibonacciClock> {
     return colors;
   }
 
-// straight from stackoverflow source: https://stackoverflow.com/questions/4632322/finding-all-possible-combinations-of-numbers-to-reach-a-given-sum
+// code idea straight from stackoverflow :) -> source: https://stackoverflow.com/questions/4632322/finding-all-possible-combinations-of-numbers-to-reach-a-given-sum
   void subsetSum(List<int> numbers, int target, List<List<int>> combinations,
       List<int> partial) {
     int sum = partial.isNotEmpty ? partial.reduce((a, b) => a + b) : 0;
