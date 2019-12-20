@@ -12,8 +12,8 @@ _To tell time on the Fibonacci clock you need to do some math. To read the hour,
 This implementation of the clock also has small dots in the corner of the blocks, which denote the minutes.
 Below the 4 themes that are currently implemented are shown below. With the 3rd and 4th one being colorblind friendly.
 <p float="left">
-  <img src="T1.jpeg" width="100" />
-  <img src="T2.jpeg" width="100" /> 
-  <img src="T3.jpeg" width="100" />
-  <img src="T4.jpeg" width="100" />
+  <img src="T1.jpeg" width="200" />
+  <img src="T2.jpeg" width="200" /> 
+  <img src="T3.jpeg" width="200" />
+  <img src="T4.jpeg" width="200" />
 </p>
