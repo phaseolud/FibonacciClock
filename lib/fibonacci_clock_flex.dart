@@ -134,8 +134,55 @@ class _FibonacciClockState extends State<FibonacciClockFlex> {
         // enable minutecircles
         const bool drawMinuteCircle = true;
         final List<Color> minuteColor = minuteToColor(_dateTime, color, _theme);
-        return Container(
-          color: Colors.black,
+        return Stack(
+          children: <Widget>[
+            Row(
+              children: <Widget>[
+                FibonacciBlockFlex(
+                  flex: 3,
+                  child: Column(
+                    children: <Widget>[
+                      FibonacciBlockFlex(
+                        flex: 2,
+                        child: Row(
+                          children: <Widget>[
+                            FibonacciBlockFlex(
+                              flex: 2,
+                              color: color[2],
+                            ),
+                            FibonacciBlockFlex(
+                              child: Column(
+                                children: <Widget>[
+                                  FibonacciBlockFlex(
+                                    color: color[0],
+                                  ),
+                                  FibonacciBlockFlex(color: color[1])
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      FibonacciBlockFlex(
+                        flex: 3,
+                        color: color[3],
+                      )
+                    ],
+                  ),
+                ),
+                FibonacciBlockFlex(
+                  flex: 5,
+                  color: color[4],
+                )
+              ],
+            ),
+            for (var i = 0; i < fibList.length; i++)
+              FibonacciLines(
+                position: positions[i],
+                width: minWidth * fibList[i],
+                height: minHeight * fibList[i],
+              )
+          ],
         );
       },
     );
@@ -222,5 +269,26 @@ class _FibonacciClockState extends State<FibonacciClockFlex> {
       remaining = numbers.sublist(i + 1);
       subsetSum(remaining, target, combinations, partial + [n]);
     }
+  }
+}
+
+class FibonacciBlockFlex extends StatelessWidget {
+  final Color color;
+  final Widget child;
+  final int flex;
+  FibonacciBlockFlex({Key key, this.color, this.child, this.flex = 1})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      flex: flex,
+      child: AnimatedContainer(
+        duration: Duration(seconds: 1),
+        curve: Curves.easeOut,
+        color: color,
+        child: child,
+      ),
+    );
   }
 }
